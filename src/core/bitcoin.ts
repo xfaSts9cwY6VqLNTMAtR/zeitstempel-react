@@ -28,7 +28,9 @@ export async function getBlockInfo(height: number): Promise<BlockInfo> {
 
 async function getBlockInfoFrom(baseUrl: string, height: number): Promise<BlockInfo> {
   // Step 1: Get block hash from height
-  const hashResponse = await fetch(`${baseUrl}/block-height/${height}`);
+  const hashResponse = await fetch(`${baseUrl}/block-height/${height}`, {
+    signal: AbortSignal.timeout(10_000),
+  });
   if (!hashResponse.ok) {
     throw new Error(`HTTP ${hashResponse.status} from ${baseUrl}/block-height/${height}`);
   }
@@ -39,7 +41,9 @@ async function getBlockInfoFrom(baseUrl: string, height: number): Promise<BlockI
   }
 
   // Step 2: Get block details from hash
-  const blockResponse = await fetch(`${baseUrl}/block/${blockHash}`);
+  const blockResponse = await fetch(`${baseUrl}/block/${blockHash}`, {
+    signal: AbortSignal.timeout(10_000),
+  });
   if (!blockResponse.ok) {
     throw new Error(`HTTP ${blockResponse.status} from ${baseUrl}/block/${blockHash}`);
   }

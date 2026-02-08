@@ -62,7 +62,8 @@ class Cursor {
    * Read an unsigned LEB128 varint.
    *
    * Each byte contributes 7 data bits; the high bit signals whether
-   * more bytes follow. We cap at 9 bytes (63 bits) to stay safe.
+   * more bytes follow. We must stay within Number.MAX_SAFE_INTEGER
+   * (2^53 - 1) since JavaScript doesn't have u64.
    *
    * Uses `2 ** shift` instead of `<<` to handle values > 2^31
    * correctly in JavaScript (bitwise ops truncate to 32 bits).
@@ -74,7 +75,13 @@ class Cursor {
       const byte = this.readByte();
       const payload = byte & 0x7f;
 
-      if (shift >= 49 && payload > 1) {
+      // Guard against exceeding Number.MAX_SAFE_INTEGER (2^53 - 1):
+      //   shift 49: payload * 2^49 is safe for payload ≤ 15 (2^4 - 1)
+      //   shift 56+: even payload=1 gives 2^56 which overflows
+      if (shift >= 56 && payload > 0) {
+        throw new ParseError('Varuint overflow');
+      }
+      if (shift >= 49 && payload > 15) {
         throw new ParseError('Varuint overflow');
       }
 

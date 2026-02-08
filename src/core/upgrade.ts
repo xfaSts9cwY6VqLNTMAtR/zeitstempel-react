@@ -13,7 +13,7 @@
 import { applyOperation } from './operations.js';
 import { parseTimestampFromBytes } from './parser.js';
 import { bytesToHex } from './hex.js';
-import type { OtsFile, Timestamp, Attestation, UpgradeResult } from './types.js';
+import type { OtsFile, Timestamp, Attestation, Operation, UpgradeResult } from './types.js';
 
 const MAX_DEPTH = 256;
 
@@ -77,11 +77,15 @@ async function upgradeTimestamp(
     }
   }
 
+  // Snapshot original ops before mutation — iterating a mutated
+  // array would accidentally recurse into the newly added ops.
+  const originalOps = [...ts.ops];
+
   ts.attestations = newAttestations;
   ts.ops.push(...newOps);
 
-  // Recurse into operation children
-  for (const [op, child] of ts.ops) {
+  // Recurse into original operation children only
+  for (const [op, child] of originalOps) {
     try {
       const newMsg = await applyOperation(op, msg);
       await upgradeTimestamp(child, newMsg, result, depth + 1);
@@ -103,6 +107,7 @@ async function fetchUpgrade(uri: string, msg: Uint8Array): Promise<Timestamp | n
       'Accept': 'application/vnd.opentimestamps.v1',
       'User-Agent': 'zeitstempel-react',
     },
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (response.status === 404) {
@@ -131,5 +136,3 @@ function hasPendingAttestation(ts: Timestamp): boolean {
   return false;
 }
 
-// Need this import for the type used in newOps
-import type { Operation } from './types.js';

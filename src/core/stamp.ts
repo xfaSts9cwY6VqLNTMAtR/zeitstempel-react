@@ -17,6 +17,7 @@ import {
   HASH_OP_TO_TAG,
 } from './constants.js';
 import { writeVaruint, writeVarbytes, _ByteBuffer as ByteBuffer } from './writer.js';
+import { hexToBytes, bytesToHex } from './hex.js';
 
 /** Calendar servers to submit to. */
 const CALENDAR_SERVERS = [
@@ -32,9 +33,7 @@ const CALENDAR_SERVERS = [
  */
 export async function stampHash(sha256Hex: string): Promise<Uint8Array> {
   // Convert hex to bytes
-  const fileDigest = new Uint8Array(
-    sha256Hex.match(/.{2}/g)!.map(b => parseInt(b, 16))
-  );
+  const fileDigest = hexToBytes(sha256Hex);
 
   if (fileDigest.length !== 32) {
     throw new Error(`Expected 32-byte SHA256 digest, got ${fileDigest.length} bytes`);
@@ -103,8 +102,7 @@ export async function stampHash(sha256Hex: string): Promise<Uint8Array> {
  */
 export async function stampFile(fileData: Uint8Array): Promise<Uint8Array> {
   const digest = await sha256(fileData);
-  const hex = Array.from(digest).map(b => b.toString(16).padStart(2, '0')).join('');
-  return stampHash(hex);
+  return stampHash(bytesToHex(digest));
 }
 
 /** Submit a 32-byte digest to a calendar server via HTTP POST. */
@@ -119,6 +117,7 @@ async function submitToCalendar(server: string, digest: Uint8Array): Promise<Uin
       'Content-Type': 'application/octet-stream',
     },
     body: digest as BodyInit,
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (!response.ok) {

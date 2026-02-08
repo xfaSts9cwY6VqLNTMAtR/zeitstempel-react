@@ -83,5 +83,8 @@ describe('writeOts', () => {
 
     // Same attestation count
     expect(countAttestations(reparsed.timestamp)).toBe(countAttestations(ots.timestamp));
+
+    // Byte-identical output — the strongest roundtrip guarantee
+    expect(serialized).toEqual(data);
   });
 });

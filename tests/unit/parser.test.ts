@@ -33,6 +33,31 @@ describe('Cursor.readVaruint', () => {
     const c = new Cursor(new Uint8Array([0xac, 0x02]));
     expect(c.readVaruint()).toBe(300);
   });
+
+  it('reads a large safe value (8 bytes, shift=49 with payload ≤ 15)', () => {
+    // Encode a value that uses 8 LEB128 bytes and stays within safe integer range.
+    // 8 bytes: 7 continuation bytes + 1 final byte.
+    // All 0x80 for first 7 bytes (payload=0), final byte 0x0f (payload=15).
+    // Value = 15 * 2^49 = 8444249301319680
+    const bytes = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x0f]);
+    const c = new Cursor(bytes);
+    expect(c.readVaruint()).toBe(15 * (2 ** 49));
+  });
+
+  it('rejects overflow at shift=49 with payload > 15', () => {
+    // Same as above but final byte 0x10 (payload=16) → would exceed 2^53
+    const bytes = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x10]);
+    const c = new Cursor(bytes);
+    expect(() => c.readVaruint()).toThrow('Varuint overflow');
+  });
+
+  it('rejects overflow at shift=56', () => {
+    // 9 bytes: 8 continuation bytes + final byte with payload=1
+    // Would be 1 * 2^56 which exceeds Number.MAX_SAFE_INTEGER
+    const bytes = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01]);
+    const c = new Cursor(bytes);
+    expect(() => c.readVaruint()).toThrow('Varuint overflow');
+  });
 });
 
 describe('Cursor.readVarbytes', () => {
