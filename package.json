@@ -1,0 +1,70 @@
+{
+  "name": "zeitstempel-react",
+  "version": "0.1.0",
+  "description": "Lightweight OpenTimestamps verification library with optional React components",
+  "type": "module",
+  "main": "./dist/zeitstempel-react.cjs",
+  "module": "./dist/zeitstempel-react.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/zeitstempel-react.js",
+      "require": "./dist/zeitstempel-react.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.1.0",
+    "vite-plugin-dts": "^4.5.0",
+    "vitest": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xfaSts9cwY6VqLNTMAtR/zeitstempel-react.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "opentimestamps",
+    "ots",
+    "bitcoin",
+    "timestamp",
+    "verification",
+    "react"
+  ]
+}
