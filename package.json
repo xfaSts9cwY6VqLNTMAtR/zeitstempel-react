@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "description": "Lightweight OpenTimestamps verification library with optional React components",
   "type": "module",
-  "main": "./dist/zeitstempel-react.cjs",
-  "module": "./dist/zeitstempel-react.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/zeitstempel-react.js",
-      "require": "./dist/zeitstempel-react.cjs"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./react": {
       "types": "./dist/react.d.ts",
