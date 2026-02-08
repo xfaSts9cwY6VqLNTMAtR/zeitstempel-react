@@ -8,7 +8,7 @@
 import { parseOts } from './parser.js';
 import { applyOperation, hashContents } from './operations.js';
 import { getBlockInfo, merkleRootToLeBytes } from './bitcoin.js';
-import { bytesToHex, hexToBytes } from './hex.js';
+import { bytesToHex, hexToBytes, constantTimeEqual } from './hex.js';
 import type { Timestamp, Attestation, VerifyResult } from './types.js';
 
 const MAX_DEPTH = 256;
@@ -27,7 +27,7 @@ export async function verifyFile(
   const computedDigest = await hashContents(fileData, ots.hashOp);
 
   // Compare digests
-  if (!arraysEqual(computedDigest, ots.fileDigest)) {
+  if (!constantTimeEqual(computedDigest, ots.fileDigest)) {
     throw new Error(
       `File digest mismatch!\n` +
       `  Expected (from .ots): ${bytesToHex(ots.fileDigest)}\n` +
@@ -66,7 +66,7 @@ export async function verifyDigest(
   const ots = parseOts(otsData);
   const digest = hexToBytes(digestHex);
 
-  if (!arraysEqual(digest, ots.fileDigest)) {
+  if (!constantTimeEqual(digest, ots.fileDigest)) {
     throw new Error(
       `Digest mismatch!\n` +
       `  Expected (from .ots): ${bytesToHex(ots.fileDigest)}\n` +
@@ -133,7 +133,7 @@ async function verifyBitcoin(height: number, msg: Uint8Array): Promise<VerifyRes
     const blockInfo = await getBlockInfo(height);
     const expectedLe = merkleRootToLeBytes(blockInfo.merkleRoot);
 
-    if (arraysEqual(msg, expectedLe)) {
+    if (constantTimeEqual(msg, expectedLe)) {
       return {
         status: 'verified',
         height,
@@ -154,12 +154,4 @@ async function verifyBitcoin(height: number, msg: Uint8Array): Promise<VerifyRes
       message: `Could not fetch Bitcoin block #${height}: ${e instanceof Error ? e.message : String(e)}`,
     };
   }
-}
-
-function arraysEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
 }

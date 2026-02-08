@@ -15,6 +15,7 @@ import {
 } from './constants.js';
 import type { HashOp } from './constants.js';
 import type { OtsFile, Timestamp, Operation, Attestation } from './types.js';
+import { constantTimeEqual } from './hex.js';
 
 // ── Error types ───────────────────────────────────────────────────
 
@@ -112,7 +113,7 @@ export function parseOts(data: Uint8Array): OtsFile {
 
   // 1. Validate the 31-byte magic header
   const header = c.readBytes(HEADER_MAGIC.length);
-  if (!arraysEqual(header, HEADER_MAGIC)) {
+  if (!constantTimeEqual(header, HEADER_MAGIC)) {
     throw new ParseError('Not a valid .ots file (bad magic header)');
   }
 
@@ -213,16 +214,16 @@ function parseAttestation(c: Cursor): Attestation {
   const tag = c.readBytes(8);
   const payload = c.readVarbytes();
 
-  if (arraysEqual(tag, ATT_TAG_BITCOIN)) {
+  if (constantTimeEqual(tag, ATT_TAG_BITCOIN)) {
     return { type: 'bitcoin', height: varuintFromSlice(payload) };
   }
-  if (arraysEqual(tag, ATT_TAG_LITECOIN)) {
+  if (constantTimeEqual(tag, ATT_TAG_LITECOIN)) {
     return { type: 'litecoin', height: varuintFromSlice(payload) };
   }
-  if (arraysEqual(tag, ATT_TAG_ETHEREUM)) {
+  if (constantTimeEqual(tag, ATT_TAG_ETHEREUM)) {
     return { type: 'ethereum', height: varuintFromSlice(payload) };
   }
-  if (arraysEqual(tag, ATT_TAG_PENDING)) {
+  if (constantTimeEqual(tag, ATT_TAG_PENDING)) {
     return { type: 'pending', uri: new TextDecoder().decode(payload) };
   }
   return { type: 'unknown', tag: tag, payload: payload };
@@ -232,15 +233,6 @@ function parseAttestation(c: Cursor): Attestation {
 function varuintFromSlice(data: Uint8Array): number {
   const c = new Cursor(data);
   return c.readVaruint();
-}
-
-/** Compare two Uint8Arrays for equality. */
-function arraysEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
 }
 
 // ── Tree utilities ────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bytesToHex, hexToBytes } from '../../src/core/hex.js';
+import { bytesToHex, hexToBytes, constantTimeEqual } from '../../src/core/hex.js';
 
 describe('bytesToHex', () => {
   it('converts empty array', () => {
@@ -46,5 +46,37 @@ describe('roundtrip', () => {
   it('hex → bytes → hex', () => {
     const original = '03ba204e50d126e4674c005e04d82e84c21366780af1f43bd54a37816b6ab340';
     expect(bytesToHex(hexToBytes(original))).toBe(original);
+  });
+});
+
+describe('constantTimeEqual', () => {
+  it('returns true for identical arrays', () => {
+    const a = new Uint8Array([1, 2, 3]);
+    expect(constantTimeEqual(a, new Uint8Array([1, 2, 3]))).toBe(true);
+  });
+
+  it('returns true for empty arrays', () => {
+    expect(constantTimeEqual(new Uint8Array([]), new Uint8Array([]))).toBe(true);
+  });
+
+  it('returns false for different content', () => {
+    expect(constantTimeEqual(
+      new Uint8Array([1, 2, 3]),
+      new Uint8Array([1, 2, 4]),
+    )).toBe(false);
+  });
+
+  it('returns false for different lengths', () => {
+    expect(constantTimeEqual(
+      new Uint8Array([1, 2]),
+      new Uint8Array([1, 2, 3]),
+    )).toBe(false);
+  });
+
+  it('returns false when only the last byte differs', () => {
+    const a = new Uint8Array(32).fill(0xaa);
+    const b = new Uint8Array(32).fill(0xaa);
+    b[31] = 0xab;
+    expect(constantTimeEqual(a, b)).toBe(false);
   });
 });

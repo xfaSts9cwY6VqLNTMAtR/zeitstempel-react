@@ -1,5 +1,5 @@
 /**
- * Hex encoding/decoding utilities.
+ * Hex encoding/decoding and low-level byte utilities.
  */
 
 const HEX_CHARS = '0123456789abcdef';
@@ -28,4 +28,22 @@ export function hexToBytes(hex: string): Uint8Array {
     bytes[i / 2] = (hi << 4) | lo;
   }
   return bytes;
+}
+
+/**
+ * Constant-time comparison of two Uint8Arrays.
+ *
+ * Always examines every byte regardless of where a mismatch occurs,
+ * preventing timing side-channels. Used as cryptographic hygiene
+ * throughout the library — even where the compared values are public
+ * today — so that future extensions or code reuse can't accidentally
+ * introduce a timing leak.
+ */
+export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
 }
