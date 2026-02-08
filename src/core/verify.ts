@@ -8,7 +8,7 @@
 import { parseOts } from './parser.js';
 import { applyOperation, hashContents } from './operations.js';
 import { getBlockInfo, merkleRootToLeBytes } from './bitcoin.js';
-import { bytesToHex } from './hex.js';
+import { bytesToHex, hexToBytes } from './hex.js';
 import type { Timestamp, Attestation, VerifyResult } from './types.js';
 
 const MAX_DEPTH = 256;
@@ -49,6 +49,33 @@ export async function verifyHash(
   otsData: Uint8Array,
 ): Promise<VerifyResult[]> {
   return verifyFile(hashData, otsData);
+}
+
+/**
+ * Verify an .ots proof against a pre-computed digest (hex string).
+ *
+ * Use this when you already have the hash that was stamped (e.g.,
+ * from a database field) and don't have the original file data.
+ * The digest is compared directly against the .ots file's stored
+ * digest without re-hashing.
+ */
+export async function verifyDigest(
+  digestHex: string,
+  otsData: Uint8Array,
+): Promise<VerifyResult[]> {
+  const ots = parseOts(otsData);
+  const digest = hexToBytes(digestHex);
+
+  if (!arraysEqual(digest, ots.fileDigest)) {
+    throw new Error(
+      `Digest mismatch!\n` +
+      `  Expected (from .ots): ${bytesToHex(ots.fileDigest)}\n` +
+      `  Provided:             ${digestHex}\n` +
+      `  This .ots proof is for a different hash.`
+    );
+  }
+
+  return walkTimestamp(ots.timestamp, ots.fileDigest, 0);
 }
 
 // ── Tree walker ────────────────────────────────────────────────────

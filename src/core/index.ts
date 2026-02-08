@@ -29,7 +29,7 @@ export { writeOts } from './writer.js';
 export { applyOperation, hashContents } from './operations.js';
 
 // Verification
-export { verifyFile, verifyHash } from './verify.js';
+export { verifyFile, verifyHash, verifyDigest } from './verify.js';
 
 // Bitcoin API
 export { getBlockInfo, merkleRootToLeBytes } from './bitcoin.js';
