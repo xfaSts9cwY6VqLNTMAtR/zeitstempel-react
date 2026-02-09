@@ -15,7 +15,10 @@ function makePendingResponse(uri: string): Uint8Array {
   const buf = new ByteBuffer();
   buf.push(TAG_ATTESTATION);
   buf.extend(ATT_TAG_PENDING);
-  writeVarbytes(buf, new TextEncoder().encode(uri));
+  // The pending payload has a nested varbytes: outer(inner(uri_bytes))
+  const innerPayload = new ByteBuffer();
+  writeVarbytes(innerPayload, new TextEncoder().encode(uri));
+  writeVarbytes(buf, innerPayload.toUint8Array());
   return buf.toUint8Array();
 }
 

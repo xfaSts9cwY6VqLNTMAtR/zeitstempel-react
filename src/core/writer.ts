@@ -149,10 +149,15 @@ function writeAttestation(buf: ByteBuffer, att: Attestation): void {
       writeVarbytes(buf, payload.toUint8Array());
       break;
     }
-    case 'pending':
+    case 'pending': {
       buf.extend(ATT_TAG_PENDING);
-      writeVarbytes(buf, new TextEncoder().encode(att.uri));
+      // The pending payload wraps the URI in an inner varbytes
+      // (matching the reference python-opentimestamps format).
+      const payload = new ByteBuffer();
+      writeVarbytes(payload, new TextEncoder().encode(att.uri));
+      writeVarbytes(buf, payload.toUint8Array());
       break;
+    }
     case 'unknown':
       buf.extend(att.tag);
       writeVarbytes(buf, att.payload);

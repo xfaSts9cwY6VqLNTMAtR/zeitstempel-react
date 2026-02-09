@@ -224,7 +224,11 @@ function parseAttestation(c: Cursor): Attestation {
     return { type: 'ethereum', height: varuintFromSlice(payload) };
   }
   if (constantTimeEqual(tag, ATT_TAG_PENDING)) {
-    return { type: 'pending', uri: new TextDecoder().decode(payload) };
+    // The payload contains a nested varbytes: varuint(uri_len) + uri_bytes.
+    // We need to strip that inner length prefix to get the actual URI.
+    const innerCursor = new Cursor(payload);
+    const uriBytes = innerCursor.readVarbytes();
+    return { type: 'pending', uri: new TextDecoder().decode(uriBytes) };
   }
   return { type: 'unknown', tag: tag, payload: payload };
 }

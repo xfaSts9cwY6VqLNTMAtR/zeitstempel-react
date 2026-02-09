@@ -24,9 +24,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:unit": "vitest run",
+    "test": "vitest run tests/unit",
+    "test:watch": "vitest tests/unit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration/lifecycle.test.ts",
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
