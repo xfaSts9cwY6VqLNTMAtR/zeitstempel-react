@@ -1,4 +1,4 @@
-# zeitstempel-react
+# zeitstempel
 
 A lightweight TypeScript library for the full [OpenTimestamps](https://opentimestamps.org/) lifecycle: **stamp**, **upgrade**, and **verify** -- with optional React components. Works in browsers and Node.js.
 
@@ -24,7 +24,7 @@ npm install github:xfaSts9cwY6VqLNTMAtR/zeitstempel-react
 
 ## Core API
 
-Import from `zeitstempel-react` (no React dependency required):
+Import from `zeitstempel` (no React dependency required):
 
 ```typescript
 import {
@@ -36,7 +36,7 @@ import {
   parseOts,
   writeOts,
   formatProofTree,
-} from 'zeitstempel-react';
+} from 'zeitstempel';
 ```
 
 ### Stamp a file
@@ -110,14 +110,14 @@ File hash: 7e0b2290f512...5232 (SHA256)
 
 ## React Components
 
-Import from `zeitstempel-react/react` (requires React 18+):
+Import from `zeitstempel/react` (requires React 18+):
 
 ```typescript
 import {
   VerifyTimestampButton,
   TimestampStatus,
   TimestampDownloadLinks,
-} from 'zeitstempel-react/react';
+} from 'zeitstempel/react';
 ```
 
 ### VerifyTimestampButton

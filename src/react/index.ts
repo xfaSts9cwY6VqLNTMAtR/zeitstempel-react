@@ -1,6 +1,6 @@
 /**
  * React components for OpenTimestamps verification UI.
- * Import from 'zeitstempel-react/react'.
+ * Import from 'zeitstempel/react'.
  */
 
 export { VerifyTimestampButton } from './VerifyTimestampButton.js';

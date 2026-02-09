@@ -113,7 +113,7 @@ async function submitToCalendar(server: string, digest: Uint8Array): Promise<Uin
     method: 'POST',
     headers: {
       'Accept': 'application/vnd.opentimestamps.v1',
-      'User-Agent': 'zeitstempel-react',
+      'User-Agent': 'zeitstempel',
       'Content-Type': 'application/octet-stream',
     },
     body: digest as BodyInit,

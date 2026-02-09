@@ -105,7 +105,7 @@ async function fetchUpgrade(uri: string, msg: Uint8Array): Promise<Timestamp | n
   const response = await fetch(url, {
     headers: {
       'Accept': 'application/vnd.opentimestamps.v1',
-      'User-Agent': 'zeitstempel-react',
+      'User-Agent': 'zeitstempel',
     },
     signal: AbortSignal.timeout(10_000),
   });
