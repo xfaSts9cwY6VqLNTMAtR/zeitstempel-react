@@ -16,10 +16,8 @@ The entire core is about 1,300 lines of TypeScript -- significantly smaller than
 
 ## Install
 
-Not yet published to npm. For now, install from GitHub:
-
 ```bash
-npm install github:xfaSts9cwY6VqLNTMAtR/zeitstempel-react
+npm install zeitstempel
 ```
 
 ## Core API
