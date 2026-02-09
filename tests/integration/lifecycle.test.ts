@@ -131,7 +131,12 @@ describe('Full OTS lifecycle (live network)', () => {
     console.log('  anchor it, which typically takes 30 min to 3 hours.');
     console.log('  -------------------------------------------------------');
 
-    const wantToWait = await askUser('Want to wait ~3 hours and try upgrading?');
+    // OTS_WAIT=1 skips the interactive prompt (for non-interactive environments).
+    // OTS_WAIT=0 explicitly skips the wait.
+    const envWait = process.env.OTS_WAIT;
+    const wantToWait = envWait !== undefined
+      ? envWait === '1'
+      : await askUser('Want to wait ~3 hours and try upgrading?');
 
     if (!wantToWait) {
       console.log('  Skipping the wait. Smart choice for a quick test run!');
