@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { parseOts, countAttestations, findBitcoinHeight, _Cursor as Cursor } from '../../src/core/parser.js';
+import { parseOts, countAttestations, findBitcoinHeight, hasPending, _Cursor as Cursor } from '../../src/core/parser.js';
 import { bytesToHex } from '../../src/core/hex.js';
+import type { Timestamp } from '../../src/core/types.js';
 
 const FIXTURE_DIR = resolve(__dirname, '../fixtures');
 
@@ -102,5 +103,35 @@ describe('parseOts', () => {
 
     // Bitcoin block #358391
     expect(findBitcoinHeight(ots.timestamp)).toBe(358391);
+  });
+
+  it('parses golden pending fixture (from reference Python ots tool)', () => {
+    const data = new Uint8Array(readFileSync(resolve(FIXTURE_DIR, 'golden-pending.txt.ots')));
+    const ots = parseOts(data);
+
+    expect(ots.hashOp).toBe('sha256');
+    expect(ots.fileDigest.length).toBe(32);
+
+    // Should have pending attestations
+    expect(hasPending(ots.timestamp)).toBe(true);
+
+    // Collect all pending URIs from the tree
+    const pendingUris: string[] = [];
+    function collectPending(ts: Timestamp) {
+      for (const att of ts.attestations) {
+        if (att.type === 'pending') pendingUris.push(att.uri);
+      }
+      for (const [, child] of ts.ops) collectPending(child);
+    }
+    collectPending(ots.timestamp);
+
+    // The reference tool submitted to 4 calendar servers
+    expect(pendingUris.length).toBeGreaterThanOrEqual(2);
+
+    // Every URI must be a valid https URL — no stray prefix bytes
+    for (const uri of pendingUris) {
+      expect(uri).toMatch(/^https:\/\//);
+      expect(uri).not.toMatch(/^[^h]/); // no +, -, or other prefix
+    }
   });
 });

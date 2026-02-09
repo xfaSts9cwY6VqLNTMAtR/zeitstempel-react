@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { writeOts, writeVaruint, writeVarbytes, _ByteBuffer as ByteBuffer } from '../../src/core/writer.js';
-import { parseOts, countAttestations, _Cursor as Cursor } from '../../src/core/parser.js';
+import { parseOts, countAttestations, hasPending, _Cursor as Cursor } from '../../src/core/parser.js';
 import { HEADER_MAGIC } from '../../src/core/constants.js';
 
 const FIXTURE_DIR = resolve(__dirname, '../fixtures');
@@ -85,6 +85,25 @@ describe('writeOts', () => {
     expect(countAttestations(reparsed.timestamp)).toBe(countAttestations(ots.timestamp));
 
     // Byte-identical output — the strongest roundtrip guarantee
+    expect(serialized).toEqual(data);
+  });
+
+  it('roundtrips golden-pending.txt.ots (from reference Python ots tool)', () => {
+    const data = new Uint8Array(readFileSync(resolve(FIXTURE_DIR, 'golden-pending.txt.ots')));
+    const ots = parseOts(data);
+
+    // Sanity: it should have pending attestations
+    expect(hasPending(ots.timestamp)).toBe(true);
+
+    const serialized = writeOts(ots);
+    const reparsed = parseOts(serialized);
+
+    expect(reparsed.hashOp).toBe(ots.hashOp);
+    expect(reparsed.fileDigest).toEqual(ots.fileDigest);
+    expect(countAttestations(reparsed.timestamp)).toBe(countAttestations(ots.timestamp));
+
+    // Byte-identical output — proves our parser and writer both
+    // handle the nested varbytes in pending attestations correctly
     expect(serialized).toEqual(data);
   });
 });
