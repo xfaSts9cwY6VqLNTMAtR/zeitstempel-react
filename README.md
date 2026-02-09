@@ -2,7 +2,7 @@
 
 A lightweight TypeScript library for the full [OpenTimestamps](https://opentimestamps.org/) lifecycle: **stamp**, **upgrade**, and **verify** -- with optional React components. Works in browsers and Node.js.
 
-*Zeitstempel* is German for "timestamp".
+*Zeitstempel* is German for "timestamp". This is the TypeScript sibling of [zeitstempel](https://github.com/xfaSts9cwY6VqLNTMAtR/zeitstempel), a Rust CLI for the same purpose.
 
 ## What it does
 
@@ -12,12 +12,14 @@ OpenTimestamps lets you prove that data existed at a certain point in time by an
 2. **Upgrade** -- once Bitcoin confirms (1-3 blocks, typically 30 min to 3 hours), fetch the completed proof chain
 3. **Verify** -- replay the proof's hash operations and check the result against a real Bitcoin block header
 
-The binary `.ots` format parser, serializer, tree walker, and operation replay engine are all written from scratch -- the only runtime dependency is `@noble/hashes` for cryptographic hash functions.
+The entire core is about 1,300 lines of TypeScript -- significantly smaller than the reference [python-opentimestamps](https://github.com/opentimestamps/python-opentimestamps) implementation. The binary `.ots` format parser, serializer, tree walker, and operation replay engine are all written from scratch. The only runtime dependency is `@noble/hashes` for cryptographic hash functions.
 
 ## Install
 
+Not yet published to npm. For now, install from GitHub:
+
 ```bash
-npm install zeitstempel-react
+npm install github:xfaSts9cwY6VqLNTMAtR/zeitstempel-react
 ```
 
 ## Core API
@@ -217,6 +219,10 @@ src/
 - Proof tree forks (multiple attestation paths)
 - API fallback: Blockstream.info -> mempool.space
 - Parse, serialize, and inspect `.ots` proofs
+
+## See also
+
+**[zeitstempel](https://github.com/xfaSts9cwY6VqLNTMAtR/zeitstempel)** -- the Rust CLI version. Same stamp/upgrade/verify lifecycle, compiles to a single portable binary. Use it if you want a command-line tool rather than a library.
 
 ## License
 
